@@ -1,0 +1,8 @@
+{"level":"info","ts":1702264572.487823,"caller":"router/user.go:12","msg":"初始化路由:user\n"}
+{"level":"info","ts":1702264572.4880588,"caller":"user-web/main.go:14","msg":"启动端口号:8081\n"}
+{"level":"info","ts":1702337738.341129,"caller":"router/user.go:11","msg":"初始化路由:user\n"}
+{"level":"info","ts":1702337738.341307,"caller":"user-web/main.go:14","msg":"启动端口号:8081\n"}
+2023-12-12T07:53:33.144+0800	INFO	router/user.go:11	初始化路由:user
+
+2023-12-12T07:53:33.146+0800	INFO	user-web/main.go:14	启动端口号:8081
+

@@ -1,0 +1,12 @@
+Server:
+  RunMode: debug
+  HttpHost: 127.0.0.1
+  HttpPort: 8081
+  ReadTimeOut: 60
+  WriteTimeOut: 60
+  RemoteConfig:
+    Host: 127.0.0.1
+    Port: 50051
+
+
+
