@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 	"os"
-	"shop-api/user-web/custom_validator"
 	"strings"
 
+	"github.com/gin-gonic/gin/binding"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"shop-api/user-web/custom_validator"
 	"shop-api/user-web/global"
 	"shop-api/user-web/initialize"
 )
@@ -41,7 +42,16 @@ func main() {
 	}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		registerFn := func(ut ut.Translator) error {
+			return ut.Add("mobile", "{0}手机号码非法!", true)
+		}
+		translationFn := func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("mobile", fe.Field())
+			return t
+		}
+
 		_ = v.RegisterValidation("mobile", custom_validator.ValidateMobile)
+		_ = v.RegisterTranslation("mobile", global.Trans, registerFn, translationFn)
 	}
 
 	// 初始化路由
