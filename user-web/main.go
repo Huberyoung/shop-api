@@ -5,6 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin/binding"
 	ut "github.com/go-playground/universal-translator"
@@ -23,6 +24,12 @@ func main() {
 	viper.Set("is_home", true)
 	if strings.Contains(dir, "CloudDocs") {
 		viper.Set("is_home", false)
+	}
+
+	var err error
+	global.Location, err = time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		zap.S().Fatalf(" time.LoadLocation err:%s\n", err)
 	}
 
 	// 初始化配置

@@ -14,6 +14,7 @@ func InitUser(r *gin.RouterGroup) {
 	{
 		ur.GET("/list", api.GetUserList)
 		ur.POST("/pwd_login", api.PasswordLogin)
+		ur.POST("/create", api.CreateUser)
 	}
 
 }

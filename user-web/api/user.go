@@ -70,6 +70,7 @@ func getClient() user.UserClient {
 	return user.NewUserClient(conn)
 }
 
+// GetUserList 获得用户列表
 func GetUserList(ctx *gin.Context) {
 	var param forms.GetUserListForm
 	if err := ctx.ShouldBind(&param); err != nil {
@@ -100,6 +101,7 @@ func GetUserList(ctx *gin.Context) {
 	return
 }
 
+// PasswordLogin 密码登录
 func PasswordLogin(ctx *gin.Context) {
 	var param forms.PasswordLoginForm
 	if err := ctx.ShouldBind(&param); err != nil {
@@ -137,5 +139,38 @@ func PasswordLogin(ctx *gin.Context) {
 		}
 	}
 	ctx.JSON(http.StatusOK, gin.H{"msg": "登录成功～"})
+	return
+}
+
+// CreateUser 创建用户
+func CreateUser(ctx *gin.Context) {
+	var param forms.CreateUserForm
+	if err := ctx.ShouldBind(&param); err != nil {
+		HandleValidatorError(ctx, err)
+		return
+	}
+
+	birthday, err := time.ParseInLocation("2006-01-02 15:04:05", param.BirthDay, global.Location)
+	if err != nil {
+		zap.S().Errorw("[ParseInLocation 失败", "msg", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+
+	client := getClient()
+	crq := user.CreateUserRequest{
+		Nickname: param.Nickname,
+		Password: param.Password,
+		Mobile:   param.Mobile,
+		Gender:   user.CreateUserRequest_Gender(param.Gender).Enum(),
+		BirthDay: uint64(birthday.Unix()),
+	}
+	createUser, err := client.CreateUser(context.Background(), &crq)
+	if err != nil {
+		zap.S().Errorw("[CreateUser【创建用户】失败", "msg", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"createUser": createUser})
 	return
 }
