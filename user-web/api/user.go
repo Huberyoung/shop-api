@@ -107,5 +107,35 @@ func PasswordLogin(ctx *gin.Context) {
 		return
 	}
 
+	cbg := context.Background()
+
+	client := getClient()
+	rsp, err := client.GetUserByMobile(cbg, &user.MobileRequest{Mobile: param.Mobile})
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.NotFound:
+				ctx.JSON(http.StatusBadRequest, gin.H{"mobile": "用户不存在", "msg": err.Error()})
+			default:
+				ctx.JSON(http.StatusInternalServerError, gin.H{"mobile": "登录失败", "msg": err.Error()})
+			}
+			return
+		}
+		zap.S().Errorw("[GetUserByMobile 查询【用户信息】失败", "msg", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+
+	if passRsp, err := client.CheckPassword(cbg, &user.PasswordCheckRequest{Password: param.Password, EncryptedPassword: rsp.Password}); err != nil {
+		zap.S().Errorw("[CheckPassword 验证【密码信息】失败", "msg", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	} else {
+		if !passRsp.Success {
+			ctx.JSON(http.StatusForbidden, gin.H{"msg": "密码验证失败～"})
+			return
+		}
+	}
+	ctx.JSON(http.StatusOK, gin.H{"msg": "登录成功～"})
 	return
 }
