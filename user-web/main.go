@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin/binding"
 	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
