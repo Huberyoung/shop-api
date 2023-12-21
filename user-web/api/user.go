@@ -41,6 +41,16 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 	}
 }
 
+func ConvertUserToResponse(user *user.UserInfoResponse) response.UserResponse {
+	return response.UserResponse{
+		Id:       user.Id,
+		Mobile:   user.Mobile,
+		NickName: user.NikeName,
+		Birthday: response.JsonTime(time.Unix(int64(user.BirthDay), 0)),
+		Gender:   int(user.Gender.Number()),
+	}
+}
+
 func TranslateErr(err error) any {
 	var errs validator.ValidationErrors
 	ok := errors.As(err, &errs)
@@ -87,15 +97,8 @@ func GetUserList(ctx *gin.Context) {
 	}
 
 	result := make([]any, 0)
-	for _, value := range rsp.Data {
-		data := response.UserResponse{
-			Id:       value.Id,
-			Mobile:   value.Mobile,
-			NickName: value.NikeName,
-			Birthday: response.JsonTime(time.Unix(int64(value.BirthDay), 0)),
-			Gender:   int(value.Gender.Number()),
-		}
-		result = append(result, data)
+	for _, u := range rsp.Data {
+		result = append(result, ConvertUserToResponse(u))
 	}
 	ctx.JSON(http.StatusOK, result)
 	return
@@ -168,9 +171,10 @@ func CreateUser(ctx *gin.Context) {
 	createUser, err := client.CreateUser(context.Background(), &crq)
 	if err != nil {
 		zap.S().Errorw("[CreateUser【创建用户】失败", "msg", err.Error())
-		HandleGrpcErrorToHttp(err, ctx)
+		ctx.JSON(http.StatusOK, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"createUser": createUser})
+
+	ctx.JSON(http.StatusOK, gin.H{"createUser": ConvertUserToResponse(createUser)})
 	return
 }
