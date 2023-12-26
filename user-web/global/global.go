@@ -10,4 +10,5 @@ var (
 	ServerSetting *configs.ServerSettingS
 	Trans         ut.Translator
 	Location      *time.Location
+	JwtConfig     *configs.JWTConfigS
 )

@@ -15,3 +15,8 @@ type RemoteServerSettingS struct {
 	Host string
 	Port string
 }
+
+type JWTConfigS struct {
+	SigningKey string
+	Port       string
+}
